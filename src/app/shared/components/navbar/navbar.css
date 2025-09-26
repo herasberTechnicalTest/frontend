@@ -1,75 +1,76 @@
-/* ——— Base ——— */
-:host { display:block; }
-.nav {
-  position: sticky; top: 0; z-index: 50;
-  background: #0f1115;             /* sólido, sin degradé chillón */
-  border-bottom: 1px solid #1b1f2a; /* línea sutil */
-  color: #e6e8ec;
+:root{
+  --nav-bg:#101010;
+  --nav-fg:#f4f4f4;
+  --nav-muted:#aab0c0;
+  --nav-accent:#3b82f6;
+  --nav-chip:#1b2437;
+  --nav-chip-active:#253351;
+  --shadow:0 6px 24px rgba(0,0,0,.25);
 }
+
+.nav{
+  background: var(--nav-bg);
+  color: var(--nav-fg);
+  box-shadow: var(--shadow);
+  position: sticky; top:0; z-index: 50;
+}
+
 .nav .container{
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 12px 20px;
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center;
   gap: 16px;
 }
 
-/* ——— Brand ——— */
+/* Marca */
 .brand{
-  display: inline-flex; align-items: center; gap: 10px;
-  font-weight: 700; letter-spacing: .3px;
-  color: #e6e8ec; text-decoration: none;
+  display:flex; align-items:center; gap:10px;
+  font-weight: 700; text-decoration:none; color: var(--nav-fg);
+  letter-spacing:.2px;
 }
 .brand .dot{
-  width: 10px; height: 10px; border-radius: 50%;
-  background: linear-gradient(135deg,#6ea8fe,#9b8cfe);
-  box-shadow: 0 0 0 4px rgba(110,168,254,.15);
+  width:10px; height:10px; border-radius:50%;
+  display:inline-block; background: var(--nav-accent);
+  box-shadow: 0 0 0 4px rgba(59,130,246,.25);
 }
 
-/* ——— Desktop links ——— */
+/* Enlaces desktop */
 .links{
   display:flex; align-items:center; gap: 18px;
   list-style:none; margin:0; padding:0;
+  margin-left: auto;                    /* <- empuja todo a la derecha */
 }
 .links a{
-  display:inline-flex; align-items:center;
-  padding: 8px 10px;
-  color:#cfd3dc; text-decoration:none; border-radius:10px;
-  transition: color .15s ease, background-color .15s ease;
+  display:inline-block; padding:8px 12px; border-radius:10px;
+  color: var(--nav-muted); text-decoration:none;
+  transition:.2s ease;
 }
-.links a:hover{ color:#ffffff; background:#181c25; }
-.links a.active{ color:#ffffff; background:#1a2232; }
+.links a:hover{ color: var(--nav-fg); background: var(--nav-chip); }
+.links a.active{ color:#fff; background: var(--nav-chip-active); }
 
-/* CTA */
-.links .btn{
-  background:#3a6cff; color:white;
-  padding:8px 14px; border-radius:10px;
-  font-weight:600;
-  box-shadow: 0 4px 10px rgba(58,108,255,.25);
+/* Hamburguesa */
+.hamburger{
+  display:none; background:transparent; border:0; cursor:pointer;
+  margin-left:auto; /* por si desaparece la .links en móvil */
 }
-.links .btn:hover{ background:#2f58d9; }
+.hamburger span{ display:block; width:22px; height:2px; background:#ddd; margin:4px 0; }
 
-/* ——— Burger & Mobile ——— */
-.burger{
-  display:none;
-  width:38px; height:38px; padding:0; border:0; border-radius:8px;
-  background:#151922; cursor:pointer;
-}
-.burger span{
-  display:block; width:20px; height:2px; margin:4px auto;
-  background:#cfd3dc; border-radius:2px;
-}
+/* Menú móvil */
 .mobile{
-  position:absolute; left:0; right:0; top:56px;
-  background:#0f1115; border-bottom:1px solid #1b1f2a;
-  list-style:none; margin:0; padding:10px 16px;
-  display:flex; flex-direction:column; gap:6px;
+  display:none;
+  border-top:1px solid rgba(255,255,255,.06);
+  background: #0c0c0c;
+  padding: 10px 16px 14px;
 }
-.mobile a{ padding:10px 8px; border-radius:8px; }
-.mobile a:hover{ background:#181c25; }
+.mobile a{
+  display:block; padding:10px 12px; border-radius:10px;
+  color: var(--nav-muted); text-decoration:none;
+}
+.mobile a:hover{ color:#fff; background: var(--nav-chip); }
 
-/* ——— Responsive ——— */
 @media (max-width: 820px){
   .links{ display:none; }
-  .burger{ display:inline-flex; align-items:center; justify-content:center; }
+  .hamburger{ display:block; }
+  .mobile{ display:block; }
 }
