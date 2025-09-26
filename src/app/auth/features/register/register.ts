@@ -20,7 +20,7 @@ export class RegisterComponent {
     photoUrl: '', gallery: [],
     rate: 0, currency: 'PEN',
     countryName: 'Perú', cityName: '', districtName: '',
-    mapsUrl: '', whatsappLink: '' // opcional
+    mapsUrl: '', whatsappLink: ''
   };
 
   submit(){
