@@ -1,0 +1,38 @@
+<h1>Mi perfil</h1>
+<form *ngIf="me()" (ngSubmit)="save()">
+  <label>Nombre</label>
+  <input [(ngModel)]="me()!.fullName" name="fullName" required>
+
+  <label>Descripción de servicios</label>
+  <textarea [(ngModel)]="me()!.servicesDescription" name="servicesDescription"></textarea>
+
+  <label>Tarifa</label>
+  <input type="number" [(ngModel)]="me()!.rate" name="rate">
+
+  <label>Moneda</label>
+  <input [(ngModel)]="me()!.currency" name="currency">
+
+  <label>WhatsApp</label>
+  <input [(ngModel)]="me()!.phone" name="phone">
+
+  <label>Foto principal (URL)</label>
+  <input [(ngModel)]="me()!.photoUrl" name="photoUrl">
+
+  <label>Galería (URL nueva)</label>
+  <div class="row">
+    <input #gurl>
+    <button type="button" (click)="addGallery(gurl.value); gurl.value=''">Agregar</button>
+  </div>
+
+  <label>País / Ciudad / Distrito</label>
+  <div class="row">
+    <input [(ngModel)]="me()!.countryName"  name="countryName"  placeholder="País">
+    <input [(ngModel)]="me()!.cityName"     name="cityName"     placeholder="Ciudad">
+    <input [(ngModel)]="me()!.districtName" name="districtName" placeholder="Distrito">
+  </div>
+
+  <label>Maps URL</label>
+  <input [(ngModel)]="me()!.mapsUrl" name="mapsUrl" placeholder="https://www.google.com/maps?...">
+
+  <button type="submit">Guardar</button>
+</form>
