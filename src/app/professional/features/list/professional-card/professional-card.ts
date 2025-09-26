@@ -11,5 +11,5 @@ import {ProfessionalDTO} from '../../../shared/professionalDTO';
   styleUrl: './professional-card.css'
 })
 export class ProfessionalCard {
-  pro = input.required<ProfessionalDTO>();
+  professionals = input.required<ProfessionalDTO>();
 }

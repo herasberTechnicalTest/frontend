@@ -1,15 +1,20 @@
 <h1>Profesionales</h1>
 
 <div class="filters">
-  <input [(ngModel)]="q" placeholder="Buscar..." (ngModelChange)="load()">
-  <input [(ngModel)]="cityName" placeholder="Ciudad" (ngModelChange)="load()">
-  <input [(ngModel)]="districtName" placeholder="Distrito" (ngModelChange)="load()">
-  <app-price-filter (change)="onPrice($event)"></app-price-filter>
+  <input [(ngModel)]="q" placeholder="Buscar...">
+  <input [(ngModel)]="cityName" placeholder="Ciudad">
+  <input [(ngModel)]="districtName" placeholder="Distrito">
+  <input type="number" [(ngModel)]="minRate" placeholder="Mín S/">
+  <input type="number" [(ngModel)]="maxRate" placeholder="Máx S/">
+  <button type="button" (click)="applyFilters()">Filtrar</button>
+  <button type="button" (click)="clearFilters()">Limpiar</button>
 </div>
 
-<div *ngIf="loading()" class="muted">Cargando…</div>
-<div *ngIf="!loading() && items().length === 0" class="muted">No se encontraron profesionales.</div>
+<div class="status" *ngIf="loading()">Actualizando resultados…</div>
 
-<div class="grid" *ngIf="!loading() && items().length">
-  <app-professional-card *ngFor="let p of items()" [pro]="p"></app-professional-card>
+<div class="grid">
+  <app-professional-card
+    *ngFor="let p of items(); trackBy: trackById"
+    [professionals]="p">
+  </app-professional-card>
 </div>

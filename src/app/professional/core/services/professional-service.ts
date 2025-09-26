@@ -10,15 +10,13 @@ export class ProfessionalService {
   private http = inject(HttpClient);
   private base = environment.apiUrl;
 
-  list(opts: {
-    q?: string; cityName?: string; districtName?: string;
-    minRate?: number; maxRate?: number; page?: number; pageSize?: number
-  } = {}) {
+  list(opts: { city?: string; district?: string; rate?: number } = {}) {
     let params = new HttpParams();
-    Object.entries(opts).forEach(([k, v]) => (v ?? v === 0) && (params = params.set(k, String(v))));
-    return this.http
-        .get<ProfessionalDTO[] | PagedResult<ProfessionalDTO>>(`${this.base}/professionals`, { params })
-        .pipe(map((res: any) => Array.isArray(res) ? res : (res?.items ?? [])));
+    if (opts.city)     params = params.set('city', opts.city);
+    if (opts.district) params = params.set('district', opts.district);
+    if (opts.rate != null) params = params.set('rate', String(opts.rate));
+
+    return this.http.get<ProfessionalDTO[]>(`${this.base}/professionals`, { params });
   }
 
   getById(id: number) {

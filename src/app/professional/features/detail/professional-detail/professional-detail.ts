@@ -18,10 +18,10 @@ export class ProfessionalDetail {
   private route = inject(ActivatedRoute);
   private api = inject(ProfessionalService);
 
-  pro = signal<ProfessionalDTO | null>(null);
+  professionals = signal<ProfessionalDTO | null>(null);
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.api.getById(id).subscribe(p => this.pro.set(p));
+    this.api.getById(id).subscribe(p => this.professionals.set(p));
   }
 }
