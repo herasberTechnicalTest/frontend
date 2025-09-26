@@ -15,4 +15,10 @@
   </div>
 
 
+  <div class="mobile" *ngIf="isOpen()">
+    <a routerLink="/professionals" routerLinkActive="active" (click)="close()">Professionals</a>
+    <a routerLink="/login" routerLinkActive="active" (click)="close()">Login</a>
+    <a routerLink="/register" routerLinkActive="active" (click)="close()">Register</a>
+    <a routerLink="/me/profile" routerLinkActive="active" (click)="close()">My Profile</a>
+  </div>
 </header>
