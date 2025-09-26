@@ -1,0 +1,24 @@
+.card{
+  display:block;
+  border:1px solid #eee;border-radius:12px;
+  overflow:hidden;
+  text-decoration:none;
+  color:inherit;
+  background:#fff
+}
+img{
+  width:100%;
+  height:160px;
+  object-fit:cover
+}
+.body{
+  padding:10px
+}
+.muted{
+  color:#666
+}
+.ellipsis{display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden
+}
