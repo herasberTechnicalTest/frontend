@@ -33,9 +33,6 @@
   </div>
   <div class="hint" *ngIf="uploadingGallery">Procesando galería…</div>
 
-  <input [(ngModel)]="model.mapsUrl" name="mapsUrl" placeholder="URL de Google Maps (opcional)">
-  <input [(ngModel)]="model.whatsappLink" name="whatsappLink" placeholder="Link WA (opcional)">
-
   <button type="submit" [disabled]="uploadingAvatar || uploadingGallery">
     Crear cuenta
   </button>

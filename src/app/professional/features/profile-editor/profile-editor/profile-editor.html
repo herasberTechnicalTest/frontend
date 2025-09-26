@@ -1,38 +1,52 @@
-<h1>Mi perfil</h1>
-<form *ngIf="me()" (ngSubmit)="save()">
-  <label>Nombre</label>
-  <input [(ngModel)]="me()!.fullName" name="fullName" required>
+<h2>Editar perfil</h2>
 
-  <label>Descripción de servicios</label>
-  <textarea [(ngModel)]="me()!.servicesDescription" name="servicesDescription"></textarea>
+<form (ngSubmit)="submit()" #f="ngForm">
+  <label>Nombre completo
+    <input [(ngModel)]="model.fullName" name="fullName" required />
+  </label>
 
-  <label>Tarifa</label>
-  <input type="number" [(ngModel)]="me()!.rate" name="rate">
+  <label>Email
+    <input [(ngModel)]="model.email" name="email" type="email" required />
+  </label>
 
-  <label>Moneda</label>
-  <input [(ngModel)]="me()!.currency" name="currency">
+  <label>Teléfono
+    <input [(ngModel)]="model.phone" name="phone" />
+  </label>
 
-  <label>WhatsApp</label>
-  <input [(ngModel)]="me()!.phone" name="phone">
+  <label>Descripción de servicios
+    <textarea [(ngModel)]="model.servicesDescription" name="servicesDescription" required></textarea>
+  </label>
 
-  <label>Foto principal (URL)</label>
-  <input [(ngModel)]="me()!.photoUrl" name="photoUrl">
+  <label>Tarifa
+    <input [(ngModel)]="model.rate" name="rate" type="number" step="0.01" />
+  </label>
 
-  <label>Galería (URL nueva)</label>
   <div class="row">
-    <input #gurl>
-    <button type="button" (click)="addGallery(gurl.value); gurl.value=''">Agregar</button>
+    <label>País <input [(ngModel)]="model.countryName" name="countryName" /></label>
+    <label>Ciudad <input [(ngModel)]="model.cityName" name="cityName" /></label>
+    <label>Distrito <input [(ngModel)]="model.districtName" name="districtName" /></label>
   </div>
 
-  <label>País / Ciudad / Distrito</label>
-  <div class="row">
-    <input [(ngModel)]="me()!.countryName"  name="countryName"  placeholder="País">
-    <input [(ngModel)]="me()!.cityName"     name="cityName"     placeholder="Ciudad">
-    <input [(ngModel)]="me()!.districtName" name="districtName" placeholder="Distrito">
+  <div>
+    <img *ngIf="avatarPreview" [src]="avatarPreview" alt="avatar" class="avatar"/>
+    <input type="file" accept="image/*" (change)="onAvatarChange($event)" [disabled]="uploadingAvatar"/>
   </div>
 
-  <label>Maps URL</label>
-  <input [(ngModel)]="me()!.mapsUrl" name="mapsUrl" placeholder="https://www.google.com/maps?...">
+  <div>
+    <input type="file" accept="image/*" multiple (change)="onGalleryChange($event)" [disabled]="uploadingGallery"/>
+    <div class="grid">
+      <div *ngFor="let src of galleryPreviews; let i = index" class="thumb">
+        <img [src]="src" alt="gallery"/>
+        <button type="button" (click)="removeGalleryItem(i)">Quitar</button>
+      </div>
+    </div>
+  </div>
 
-  <button type="submit">Guardar</button>
+  <label>Nueva contraseña (opcional, min 6)
+    <input [(ngModel)]="password" name="password" type="password" minlength="6"/>
+  </label>
+
+  <button type="submit" [disabled]="f.invalid || uploadingAvatar || uploadingGallery">
+    Guardar cambios
+  </button>
 </form>

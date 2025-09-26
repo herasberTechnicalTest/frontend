@@ -1,6 +1,5 @@
-form{display:block;max-width:720px}
-label{display:block;margin:10px 0 4px}
-input,textarea{width:100%;padding:8px;border:1px solid #ddd;border-radius:8px}
-textarea{min-height:90px}
-.row{display:flex;gap:8px}
-button{margin-top:14px;padding:10px 14px;border:0;border-radius:8px;background:#111;color:#fff}
+.row { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+.grid { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: .5rem; margin-top: .5rem; }
+.thumb img { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; }
+.thumb button { margin-top: .25rem; }
+.avatar { max-width: 140px; border-radius: 8px; display:block; margin-bottom:.5rem; }

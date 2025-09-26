@@ -4,7 +4,7 @@ export interface ProfessionalDTO {
   email: string;
   phone: string;
   servicesDescription: string;
-  photoUrl: string;      // ← NO null
+  photoUrl: string;
   gallery: string[];
   rate: number;
   currency: string;
@@ -21,7 +21,7 @@ export interface CreateProfessionalPayload {
   password: string;
   phone: string;
   servicesDescription: string;
-  photoUrl: string;      // ← NO null
+  photoUrl: string;
   gallery: string[];
   rate: number;
   currency: string;
@@ -31,3 +31,5 @@ export interface CreateProfessionalPayload {
   mapsUrl: string;
   whatsappLink?: string;
 }
+export type UpdateProfessionalPayload =
+  Partial<Omit<ProfessionalDTO, 'id'>> & { password?: string };

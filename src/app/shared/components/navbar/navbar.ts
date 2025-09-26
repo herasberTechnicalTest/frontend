@@ -1,5 +1,5 @@
 import {Component, computed, inject, signal} from '@angular/core';
-import {RouterLink} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {NgIf} from '@angular/common';
 import {AuthService} from '../../../auth/core/services/auth-service';
 
@@ -11,9 +11,7 @@ import {AuthService} from '../../../auth/core/services/auth-service';
   styleUrl: './navbar.css'
 })
 export class NavbarComponent {
-  private auth = inject(AuthService);
-
-  isLoggedIn = computed(() => this.auth.loggedIn());
+  auth = inject(AuthService); // usar directamente en el template
 
   logout() { this.auth.logout(); }
 }

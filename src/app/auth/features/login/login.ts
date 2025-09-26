@@ -17,8 +17,9 @@ export class LoginComponent {
 
   submit(){
     this.auth.login(this.email, this.password).subscribe({
-      next: r => { this.auth.setToken(r.token); this.router.navigateByUrl('/me/profile'); },
-      error: e => alert(e.error?.message || 'Error de autenticación')
+      next: () => this.router.navigate(['/professionals']),
+      error: (e) => alert(e?.error?.message || 'Login failed')
     });
+
   }
 }

@@ -12,7 +12,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent, title: 'Login' },
   { path: 'register', component: RegisterComponent, title: 'Register' },
   { path: 'professionals', component: ProfessionalsList, title: 'Profesionales' },
+  { path: 'professionals/:id/edit', component: ProfileEditor, canActivate: [authGuard], title: 'Editar perfil' },
   { path: 'professionals/:id', component: ProfessionalDetail, title: 'Perfil' },
-  { path: 'me/profile', component: ProfileEditor, canActivate: [authGuard], title: 'Mi perfil' },
   { path: '**', redirectTo: 'professionals' }
 ];

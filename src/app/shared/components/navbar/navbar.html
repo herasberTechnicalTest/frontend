@@ -1,9 +1,14 @@
 <ul class="links">
   <li><a routerLink="/professionals">Inicio</a></li>
 
-  <li *ngIf="!isLoggedIn()"><a routerLink="/login">Login</a></li>
-  <li *ngIf="!isLoggedIn()"><a routerLink="/register">Register</a></li>
+  <li *ngIf="!auth.loggedIn()"><a routerLink="/login">Login</a></li>
+  <li *ngIf="!auth.loggedIn()"><a routerLink="/register">Register</a></li>
 
-  <li *ngIf="isLoggedIn()"><a routerLink="/me/profile">My Profile</a></li>
-  <li *ngIf="isLoggedIn()"><button class="link-btn" (click)="logout()">Log out</button></li>
+  <li *ngIf="auth.loggedIn() && auth.userId() as uid">
+    <a [routerLink]="['/professionals', uid, 'edit']">Editar perfil</a>
+  </li>
+
+  <li *ngIf="auth.loggedIn()">
+    <button class="link-btn" (click)="logout()">Log out</button>
+  </li>
 </ul>
