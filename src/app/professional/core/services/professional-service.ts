@@ -1,9 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import {environment} from '../../../../environment/environment';
-import {PagedResult} from '../../../auth/shared/models';
-import {ProfessionalDTO} from '../../shared/professionalDTO';
-import {map} from "rxjs";
+import {CreateProfessionalPayload, ProfessionalDTO} from '../../shared/professionalDTO';
 
 @Injectable({ providedIn: 'root' })
 export class ProfessionalService {
@@ -23,7 +21,7 @@ export class ProfessionalService {
     return this.http.get<ProfessionalDTO>(`${this.base}/${id}`);
   }
 
-  create(body: Omit<ProfessionalDTO, 'id' | 'mapsUrl'> & { password?: string, mapsUrl?: string, whatsappLink?: string }) {
+  create(body: CreateProfessionalPayload) {
     return this.http.post<ProfessionalDTO>(`${this.base}/professional`, body);
   }
 
@@ -34,4 +32,13 @@ export class ProfessionalService {
   remove(id: number) {
     return this.http.delete<void>(`${this.base}/professionals/${id}`);
   }
+
+  upload(file: File) {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<{ url: string }>(`${this.base}/upload`, form);
+  }
+
+
+
 }

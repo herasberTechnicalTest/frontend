@@ -1,29 +1,33 @@
-<ng-container *ngIf="professionals() as p">
-  <section class="head">
-    <img class="avatar" [src]="p.photoUrl || 'https://via.placeholder.com/140?text=Avatar'">
+<section *ngIf="!loading && professional as p">
+  <header class="header">
+    <img class="avatar" [src]="displayPhoto(p.photoUrl)" alt="foto de {{p.fullName}}" />
     <div>
-      <h1>{{p.fullName}}</h1>
-      <p class="muted">{{p.servicesDescription}}</p>
-      <p>Ubicación: {{p.districtName || p.cityName}}</p>
-      <p *ngIf="p.rate">Tarifa aprox: {{p.currency}} {{p.rate}}</p>
-      <a *ngIf="p.whatsappLink || p.phone"
-         class="wa"
-         [href]="p.whatsappLink || ('https://api.whatsapp.com/send?phone='+p.phone)"
+      <h1>{{ p.fullName }}</h1>
+      <p class="muted">{{ p.servicesDescription }}</p>
+      <p>Ubicación: {{ p.districtName || '-' }}</p>
+      <p *ngIf="p.rate">Tarifa aprox: {{ p.currency }} {{ p.rate }}</p>
+
+      <a *ngIf="p.whatsappLink"
+         class="btn btn-wa"
+         [href]="p.whatsappLink"
          target="_blank" rel="noopener">
         Contactar por WhatsApp
       </a>
     </div>
-  </section>
+  </header>
 
   <h2>Galería</h2>
-  <app-photo-gallery [images]="p.gallery || []"></app-photo-gallery>
+  <div class="gallery" *ngIf="gallerySafe(p.gallery).length; else noGallery">
+    <img *ngFor="let url of gallerySafe(p.gallery)" [src]="url" alt="foto de {{p.fullName}}" />
+  </div>
+  <ng-template #noGallery><p class="muted">Sin fotos de galería.</p></ng-template>
 
   <h2>Ubicación</h2>
-  <app-map
-    [mapsUrl]="p.mapsUrl"
-    [query]="(p.districtName || '') + ' ' + (p.cityName || '')">
+  <app-map [mapsUrl]="p.mapsUrl"
+           [query]="(p.districtName || '') + ' ' + (p.cityName || '')">
   </app-map>
+</section>
 
-
-
-</ng-container>
+<section *ngIf="loading">
+  Cargando…
+</section>

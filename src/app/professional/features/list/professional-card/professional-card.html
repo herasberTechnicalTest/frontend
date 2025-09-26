@@ -1,9 +1,10 @@
-<a class="card" [routerLink]="['/professionals', professionals().id]">
-  <img [src]="professionals().photoUrl || 'https://via.placeholder.com/300x200?text=Avatar'" alt="">
-  <div class="body">
-    <h3>{{professionals().fullName}}</h3>
-    <p class="muted ellipsis">{{professionals().servicesDescription}}</p>
-    <p>Ubicación: {{professionals().districtName || professionals().cityName}}</p>
-    <p *ngIf="professionals().rate">Tarifa aprox: {{professionals().currency}} {{professionals().rate}}</p>
+<a class="card" [routerLink]="['/professionals', professionals.id]">
+  <div class="thumb">
+    <img [src]="displayPhoto(professionals.photoUrl)" alt="foto de {{professionals.fullName}}" />
   </div>
+
+  <h3>{{ professionals.fullName }}</h3>
+  <p class="muted">{{ professionals.servicesDescription }}</p>
+  <p>Ubicación: {{ professionals.districtName || '-' }}</p>
+  <p *ngIf="professionals.rate">Tarifa aprox: {{ professionals.currency }} {{ professionals.rate }}</p>
 </a>

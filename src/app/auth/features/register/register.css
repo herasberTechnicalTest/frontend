@@ -1,10 +1,9 @@
-form{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  max-width:520px
-}
-
-textarea{
-  min-height:90px
-}
+form{display:flex;flex-direction:column;gap:10px;max-width:520px}
+textarea{min-height:90px}
+.avatar-preview img{width:120px;height:120px;object-fit:cover;border-radius:8px;border:1px solid #ddd}
+.gallery{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.thumb{position:relative}
+.thumb img{width:120px;height:90px;object-fit:cover;border-radius:8px;border:1px solid #ddd}
+.thumb button{position:absolute;top:4px;right:4px;border:0;border-radius:999px;padding:2px 6px;background:#111;color:#fff;cursor:pointer}
+.hint{font-size:12px;color:#666}
+button[disabled]{opacity:.6;cursor:not-allowed}
