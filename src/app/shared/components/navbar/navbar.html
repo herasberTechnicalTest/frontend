@@ -1,24 +1,9 @@
-<header class="navbar">
-  <div class="inner">
-    <a class="brand" routerLink="/" (click)="close()">
-      <span class="dot"></span>
-      <span>ProFinder</span>
-    </a>
+<ul class="links">
+  <li><a routerLink="/professionals">Inicio</a></li>
 
-    <nav class="links">
-      <a routerLink="/professionals" routerLinkActive="active" (click)="close()">Professionals</a>
-      <a routerLink="/login" routerLinkActive="active" (click)="close()">Login</a>
-      <a routerLink="/register" routerLinkActive="active" (click)="close()">Register</a>
-      <a routerLink="/me/profile" routerLinkActive="active" (click)="close()">My Profile</a>
-    </nav>
+  <li *ngIf="!isLoggedIn()"><a routerLink="/login">Login</a></li>
+  <li *ngIf="!isLoggedIn()"><a routerLink="/register">Register</a></li>
 
-  </div>
-
-
-  <div class="mobile" *ngIf="isOpen()">
-    <a routerLink="/professionals" routerLinkActive="active" (click)="close()">Professionals</a>
-    <a routerLink="/login" routerLinkActive="active" (click)="close()">Login</a>
-    <a routerLink="/register" routerLinkActive="active" (click)="close()">Register</a>
-    <a routerLink="/me/profile" routerLinkActive="active" (click)="close()">My Profile</a>
-  </div>
-</header>
+  <li *ngIf="isLoggedIn()"><a routerLink="/me/profile">My Profile</a></li>
+  <li *ngIf="isLoggedIn()"><button class="link-btn" (click)="logout()">Log out</button></li>
+</ul>

@@ -1,6 +1,7 @@
-import {Component, signal} from '@angular/core';
+import {Component, computed, inject, signal} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {NgIf} from '@angular/common';
+import {AuthService} from '../../../auth/core/services/auth-service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,13 +11,9 @@ import {NgIf} from '@angular/common';
   styleUrl: './navbar.css'
 })
 export class NavbarComponent {
-  isOpen = signal(false);
+  private auth = inject(AuthService);
 
-  toggle() {
-    this.isOpen.update(v => !v);
-  }
+  isLoggedIn = computed(() => this.auth.loggedIn());
 
-  close() {
-    this.isOpen.set(false);
-  }
+  logout() { this.auth.logout(); }
 }
