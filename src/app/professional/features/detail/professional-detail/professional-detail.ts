@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgIf, NgFor } from '@angular/common';
 
-import {ProfessionalService} from '../../../core/services/professional_service';
+import {ProfessionalService} from '../../../core/services/professional-service';
 import {ProfessionalDTO} from '../../../shared/professionalDTO';
 import {PhotoGallery} from '../../../../shared/components/photo-gallery/photo-gallery';
 import {MapComponent} from '../../../../shared/components/map/map';
