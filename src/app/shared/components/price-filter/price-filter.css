@@ -1,0 +1,19 @@
+.row{
+  display:flex;
+  gap:8px;
+  align-items:center
+}
+
+input{
+  padding:6px 8px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  width:120px
+}
+button{
+  padding:6px 10px;
+  border-radius:8px;
+  background:#111;
+  color:#fff;
+  border:0
+}
