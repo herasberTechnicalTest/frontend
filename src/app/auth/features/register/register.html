@@ -1,0 +1,16 @@
+<h1>Registro de profesional</h1>
+<form (ngSubmit)="submit()">
+  <input [(ngModel)]="model.fullName"  name="fullName"  placeholder="Nombre" required>
+  <input [(ngModel)]="model.email"     name="email"     type="email" placeholder="Email" required>
+  <input [(ngModel)]="model.password"  name="password"  type="password" placeholder="Contraseña" required>
+  <input [(ngModel)]="model.phone"     name="phone"     placeholder="WhatsApp (51xxxxxxxxx)">
+  <textarea [(ngModel)]="model.servicesDescription" name="servicesDescription" placeholder="Descripción de servicios"></textarea>
+  <input [(ngModel)]="model.cityName"      name="cityName"      placeholder="Ciudad">
+  <input [(ngModel)]="model.districtName"  name="districtName"  placeholder="Distrito">
+  <input [(ngModel)]="model.rate"          name="rate" type="number" placeholder="Tarifa">
+  <input [(ngModel)]="model.currency"      name="currency" placeholder="Moneda (PEN)">
+  <input [(ngModel)]="model.photoUrl"      name="photoUrl" placeholder="URL de foto principal">
+  <input [(ngModel)]="model.mapsUrl"       name="mapsUrl"  placeholder="URL de Google Maps (opcional)">
+  <input [(ngModel)]="model.whatsappLink"  name="whatsappLink"  placeholder="Link WA (opcional)">
+  <button type="submit">Crear cuenta</button>
+</form>
