@@ -1,0 +1,71 @@
+.navbar {
+  position: sticky; top: 0; z-index: 40;
+  backdrop-filter: blur(14px);
+  background: linear-gradient(180deg, rgba(2,6,23,.85), rgba(2,6,23,.35));
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.navbar .inner {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  max-width: var(--maxw); margin: 0 auto; padding: 10px var(--spacing);
+}
+
+.brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-weight: 800; letter-spacing: .2px; color: var(--heading);
+  text-decoration: none;
+}
+.brand .dot {
+  width: 10px; height: 10px; border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, #fff, var(--brand-500));
+  box-shadow: 0 0 0 6px rgba(124,58,237,.18);
+}
+
+/* Desktop links */
+.links {
+  display: none; gap: 16px; align-items: center;
+}
+.links a {
+  color: var(--text); text-decoration: none; opacity: .88; font-weight: 600;
+  padding: 8px 10px; border-radius: 10px; transition: background .2s, opacity .2s;
+}
+.links a:hover { background: rgba(255,255,255,.06); opacity: 1; }
+.links a.active { color: #fff; background: rgba(124,58,237,.25); border: 1px solid rgba(124,58,237,.35); }
+
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+
+/* Hamburger for mobile */
+.hamburger {
+  display: inline-flex; flex-direction: column; gap: 4px;
+  padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.04);
+}
+.hamburger span { width: 20px; height: 2px; background: #e5e7eb; display: block; border-radius: 2px; }
+
+/* Mobile menu */
+.mobile {
+  display: grid; gap: 8px; padding: 10px var(--spacing) 14px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  background: linear-gradient(180deg, rgba(2,6,23,.85), rgba(2,6,23,.55));
+}
+.mobile a {
+  color: var(--text); text-decoration: none; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.04);
+  font-weight: 600;
+}
+
+/* Show desktop nav at ≥ 900px */
+@media (min-width: 900px) {
+  .links { display: inline-flex; }
+  .hamburger { display: none; }
+  .mobile { display: none !important; }
+}
+
+/* Buttons (using global styles if ya las tienes) */
+.btn {
+  appearance: none; border: 0; border-radius: 12px; padding: 8px 12px;
+  font-weight: 700; letter-spacing: .2px; background: #111827; color: var(--text);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.btn-outline { background: transparent; border: 1px solid rgba(255,255,255,.22); }
+.btn-sm { padding: 8px 12px; font-size: 14px; }
