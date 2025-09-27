@@ -120,7 +120,6 @@ export class ProfileEditor implements OnInit {
       },
       (error) => {
         console.error('Error al eliminar la imagen', error);
-        alert('Error al eliminar la imagen');
       }
     );
   }
