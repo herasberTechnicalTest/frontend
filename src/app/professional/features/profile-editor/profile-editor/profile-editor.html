@@ -2,7 +2,7 @@
 
 <form (ngSubmit)="submit()" #f="ngForm">
   <label>Nombre completo
-    <input [(ngModel)]="model.fullName" name="fullName" required />
+    <input [(ngModel)]="model.fullName" type="text" name="fullName" required />
   </label>
 
   <label>Email
@@ -10,7 +10,7 @@
   </label>
 
   <label>Teléfono
-    <input [(ngModel)]="model.phone" name="phone" />
+    <input [(ngModel)]="model.phone"  type="text"  name="phone" />
   </label>
 
   <label>Descripción de servicios
@@ -21,17 +21,24 @@
     <input [(ngModel)]="model.rate" name="rate" type="number" step="0.01" />
   </label>
 
-  <div class="row">
-    <label>País <input [(ngModel)]="model.countryName" name="countryName" /></label>
-    <label>Ciudad <input [(ngModel)]="model.cityName" name="cityName" /></label>
-    <label>Distrito <input [(ngModel)]="model.districtName" name="districtName" /></label>
+  <div >
+    <label>Ciudad </label>
+    <br>
+    <input [(ngModel)]="model.cityName" type="text"  name="cityName" />
+    <br>
+    <br>
+    <label>Distrito </label>
+    <br>
+    <input [(ngModel)]="model.districtName" type="text"  name="districtName" />
   </div>
 
+  <label>Foto de Perfil</label>
   <div>
     <img *ngIf="avatarPreview" [src]="avatarPreview" alt="avatar" class="avatar"/>
     <input type="file" accept="image/*" (change)="onAvatarChange($event)" [disabled]="uploadingAvatar"/>
   </div>
 
+  <label>Fotos de Galería</label>
   <div>
     <input type="file" accept="image/*" multiple (change)="onGalleryChange($event)" [disabled]="uploadingGallery"/>
     <div class="grid">
