@@ -1,77 +1,83 @@
-:root{
-  --nav-bg:#101010;
-  --nav-fg:#f4f4f4;
-  --nav-muted:#aab0c0;
-  --nav-accent:#3b82f6;
-  --nav-chip:#1b2437;
-  --nav-chip-active:#253351;
-  --shadow:0 6px 24px rgba(0,0,0,.25);
+body { margin: 0; }
+
+:host{
+  display:block;
+  padding:8px 10px;
+  background: transparent;
 }
 
-.nav{
-  background: var(--nav-bg);
-  color: var(--nav-fg);
-  box-shadow: var(--shadow);
-  position: sticky; top:0; z-index: 50;
+.navbar{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  box-shadow:0 20px 40px rgba(15,23,42,.06);
+  height:56px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 16px;
+  max-width:1200px;
+  margin:0 auto;
+  box-sizing:border-box;
 }
 
-.nav .container{
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 12px 20px;
-  display: flex; align-items: center;
-  gap: 16px;
-}
-
-
+/* Marca azul a la izquierda */
 .brand{
-  display:flex; align-items:center; gap:10px;
-  font-weight: 700; text-decoration:none; color: var(--nav-fg);
+  font-weight:800;
+  font-size:20px;
+  color:#2563eb;
   letter-spacing:.2px;
-}
-.brand .dot{
-  width:10px; height:10px; border-radius:50%;
-  display:inline-block; background: var(--nav-accent);
-  box-shadow: 0 0 0 4px rgba(59,130,246,.25);
+  user-select:none;
 }
 
-
+/* Lista de links a la derecha */
 .links{
-  display:flex; align-items:center; gap: 18px;
-  list-style:none; margin:0; padding:0;
-  margin-left: auto;
+  list-style:none;
+  display:flex;
+  align-items:center;
+  gap:28px;
+  margin:0;
+  padding:0;
 }
+.links > li{ display:flex; align-items:center; }
+
+/* Links */
 .links a{
-  display:inline-block; padding:8px 12px; border-radius:10px;
-  color: var(--nav-muted); text-decoration:none;
-  transition:.2s ease;
+  text-decoration:none;
+  color:#475569;                 /* gris legible */
+  font-weight:500;
+  font-size:19px;
+  padding:8px 10px;
+  border-radius:8px;
+  transition:color .18s, background-color .18s;
 }
-.links a:hover{ color: var(--nav-fg); background: var(--nav-chip); }
-.links a.active{ color:#fff; background: var(--nav-chip-active); }
-
-.hamburger{
-  display:none; background:transparent; border:0; cursor:pointer;
-  margin-left:auto;
+.links a:hover{
+  color:#2563eb;
+  background:rgba(37,99,235,.06);
 }
-.hamburger span{ display:block; width:22px; height:2px; background:#ddd; margin:4px 0; }
-
-
-.mobile{
-  display:none;
-  border-top:1px solid rgba(255,255,255,.06);
-  background: #0c0c0c;
-  padding: 10px 16px 14px;
-}
-.mobile a{
-  display:block; padding:10px 12px; border-radius:10px;
-  color: var(--nav-muted); text-decoration:none;
-}
-.mobile a:hover{ color:#fff; background: var(--nav-chip); }
-
-@media (max-width: 820px){
-  .links{ display:none; }
-  .hamburger{ display:block; }
-  .mobile{ display:block; }
+.links a.active{
+  color:#2563eb;                 /* “Inicio” en azul */
 }
 
+/* Botón azul (a la derecha) */
+.link-btn{
+  display:inline-block;
+  background:#2563eb;
+  color:#fff !important;
+  font-weight:600;
+  font-size:14px;
+  padding:10px 16px;
+  border-radius:12px;
+  border:0;
+  cursor:pointer;
+  text-decoration:none;
+  box-shadow:0 6px 14px rgba(37,99,235,.25);
+  transition:transform .12s, background .18s;
+}
+.link-btn:hover{ background:#1e4fd3; }
+.link-btn:active{ transform:translateY(1px); }
 
+/* Opcional: hacer la barra fija como en muchas webs */
+.sticky { position: sticky; top: 0; z-index: 1000; }
