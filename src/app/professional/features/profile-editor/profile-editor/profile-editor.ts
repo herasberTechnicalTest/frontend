@@ -1,10 +1,10 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {ProfessionalService} from '../../../core/services/professional-service';
-import {ProfessionalDTO, UpdateProfessionalPayload} from '../../../shared/professionalDTO';
+import {ProfessionalDTO} from '../../../shared/professionalDTO';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgFor, NgIf} from '@angular/common';
-import {firstValueFrom} from 'rxjs';
+
 
 
 @Component({
@@ -46,9 +46,10 @@ export class ProfileEditor implements OnInit {
   galleryPreviews: string[] = [];
   password = '';
 
-  // ---------- utils ----------
-  private isHttpUrl = (s: string | null | undefined) =>
-    typeof s === 'string' && /^https?:\/\//i.test(s.trim());
+  private isHttpUrl(url: string | null | undefined): boolean {
+    return typeof url === 'string' && /^https?:\/\//i.test(url.trim());
+  }
+
 
   private normalizeCountry(s: string): string {
     const v = (s || '').trim();
@@ -61,7 +62,6 @@ export class ProfileEditor implements OnInit {
     return `https://www.google.com/maps/search/?api=1&query=${q}`;
   }
 
-  // ---------- lifecycle ----------
   ngOnInit() {
     const idNum = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isFinite(idNum) || idNum <= 0) {
@@ -88,7 +88,6 @@ export class ProfileEditor implements OnInit {
     });
   }
 
-  // ---------- imagen (compresión para preview) ----------
   private fileToDataURL(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const r = new FileReader();
@@ -156,73 +155,63 @@ export class ProfileEditor implements OnInit {
     this.model.gallery.splice(i, 1);
   }
 
-  // ---------- upload seguro (convierte data: -> URL) ----------
-  private dataURLtoFile(dataURL: string, filename = 'image.jpg'): File {
-    const [meta, data] = dataURL.split(',');
-    const mimeMatch = meta.match(/:(.*?);/);
-    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-    const binary = atob(data);
-    const u8 = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) u8[i] = binary.charCodeAt(i);
-    return new File([u8], filename, { type: mime });
-  }
 
-  private async tryUploadDataUrl(dataUrl: string, name: string): Promise<string> {
-    if (!dataUrl?.startsWith('data:')) return dataUrl; // ya es URL
-    try {
-      const file = this.dataURLtoFile(dataUrl, name);
-      const res = await firstValueFrom(this.api.upload(file));
-      return res?.url || dataUrl;
-    } catch (e) {
-      console.warn('Upload falló; uso valor existente', e);
-      return dataUrl; // no rompemos
-    }
-  }
 
   private async ensureUrlsForImages(): Promise<{ photoUrl: string; gallery: string[] }> {
-    // Foto principal
     let photo: string;
     if (this.isHttpUrl(this.model.photoUrl)) {
       photo = this.model.photoUrl!;
     } else if (this.model.photoUrl?.startsWith('data:')) {
-      const url = await this.tryUploadDataUrl(this.model.photoUrl, 'avatar.jpg');
-      photo = this.isHttpUrl(url) ? url : (this.original.photoUrl || '');
+      photo = this.model.photoUrl!;
     } else {
       photo = this.original.photoUrl || '';
     }
 
-    // Galería: subimos sólo los data:, mantenemos http(s), ignoramos lo inválido
     const current = Array.isArray(this.model.gallery) ? this.model.gallery : [];
     const processed = await Promise.all(
       current.map((item, i) =>
         item?.startsWith('data:')
-          ? this.tryUploadDataUrl(item, `gallery_${i}.jpg`)
-          : Promise.resolve(item)
+          ? Promise.resolve(item)  // ya es base64, lo dejamos tal cual
+          : this.isUsableUrl(item)  // Verificamos si es una URL válida
+            ? Promise.resolve(item)  // Si es una URL válida, la dejamos tal cual
+            : Promise.reject('Invalid URL')  // Si no es válida, rechazamos
       )
     );
-    const gallery = processed.filter(u => this.isHttpUrl(u));
 
+    const gallery = processed.filter(u => this.isUsableUrl(u)) as string[];
     return { photoUrl: photo, gallery: gallery.length ? gallery : (this.original.gallery || []) };
   }
 
-  // ---------- payload EXACTO (incluye id) ----------
+  private isUsableUrl(url: string): boolean {
+    return typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'));
+  }
+
+
+
   private async buildPutBodyIncludingIdAndImages(): Promise<{
     id: number;
-    fullName: string; email: string; password?: string; phone: string;
-    servicesDescription: string; photoUrl: string; gallery: string[];
-    rate: number; currency: string; countryName: string; cityName: string;
-    districtName: string; mapsUrl: string;
+    fullName: string;
+    email: string;
+    password?: string;
+    phone: string;
+    servicesDescription: string;
+    photoUrl: string;
+    gallery: string[];
+    rate: number;
+    currency: string;
+    countryName: string;
+    cityName: string;
+    districtName: string;
+    mapsUrl: string;
   }> {
     const o = this.original;
 
-    const { photoUrl, gallery } = await this.ensureUrlsForImages();
+    const { photoUrl, gallery } = await this.ensureUrlsForImages();  // base64 asegurado aquí
 
     const fullName = (this.model.fullName || o.fullName || '').trim();
     const servicesDescription = (this.model.servicesDescription || o.servicesDescription || '').trim();
     const phone = (this.model.phone || o.phone || '').trim();
-
     const email = (o.email || '').trim().toLowerCase();
-
     const countryName = this.normalizeCountry(this.model.countryName || o.countryName || 'Peru');
     const cityName = (this.model.cityName || o.cityName || '').trim();
     const districtName = (this.model.districtName || o.districtName || '').trim();
@@ -237,8 +226,8 @@ export class ProfileEditor implements OnInit {
       email,
       phone,
       servicesDescription,
-      photoUrl: String(photoUrl || ''),
-      gallery: Array.isArray(gallery) ? gallery : [],
+      photoUrl: String(photoUrl || ''),  // Base64 aquí
+      gallery: Array.isArray(gallery) ? gallery : [],  // Base64 aquí también
       rate,
       currency,
       countryName,
