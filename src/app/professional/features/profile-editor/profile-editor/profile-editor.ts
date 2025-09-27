@@ -202,7 +202,6 @@ export class ProfileEditor implements OnInit {
     );
     const gallery = processed.filter(u => this.isHttpUrl(u));
 
-    // si todo quedó inválido, usa la galería original del server
     return { photoUrl: photo, gallery: gallery.length ? gallery : (this.original.gallery || []) };
   }
 
@@ -216,15 +215,12 @@ export class ProfileEditor implements OnInit {
   }> {
     const o = this.original;
 
-    // 1) Primero resolvemos imágenes a URLs válidas
     const { photoUrl, gallery } = await this.ensureUrlsForImages();
 
-    // 2) Campos de texto/números
     const fullName = (this.model.fullName || o.fullName || '').trim();
     const servicesDescription = (this.model.servicesDescription || o.servicesDescription || '').trim();
     const phone = (this.model.phone || o.phone || '').trim();
 
-    // email: si lo quieres editable, cambia aquí; por defecto uso el del server
     const email = (o.email || '').trim().toLowerCase();
 
     const countryName = this.normalizeCountry(this.model.countryName || o.countryName || 'Peru');
@@ -235,7 +231,6 @@ export class ProfileEditor implements OnInit {
     const rate = Number.isFinite(Number(this.model.rate)) ? Number(this.model.rate) : Number(o.rate || 0);
     const currency = ((this.model.currency || o.currency || 'PEN') + '').toUpperCase().slice(0, 3);
 
-    // 3) Body con id (schema de tu backend)
     const body: any = {
       id: this.id,
       fullName,
@@ -259,7 +254,6 @@ export class ProfileEditor implements OnInit {
     return body;
   }
 
-  // ---------- submit ----------
   async submit() {
     if (this.uploadingAvatar || this.uploadingGallery) return;
 
