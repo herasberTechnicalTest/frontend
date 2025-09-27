@@ -55,4 +55,20 @@ export class ProfessionalService {
     });
   }
 
+  deleteImageFromGallery(professionalId: number, imageUrl: string) {
+    return this.http.delete<void>(`${this.base}/professionals/${professionalId}/gallery`, {
+      body: imageUrl, // Enviamos la URL de la imagen a eliminar
+      headers: this.authHeaders(),
+    });
+  }
+
+  addImageToGallery(professionalId: number, imageUrl: string) {
+    return this.http.post<string[]>(
+      `${this.base}/professionals/${professionalId}/gallery`,
+      imageUrl, // Enviamos la URL de la nueva imagen
+      { headers: this.authHeaders() }
+    );
+  }
+
+
 }

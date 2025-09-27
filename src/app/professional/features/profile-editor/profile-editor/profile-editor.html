@@ -21,23 +21,24 @@
     <input [(ngModel)]="model.rate" name="rate" type="number" step="0.01" />
   </label>
 
-  <div >
-    <label>Ciudad </label>
-    <br>
-    <input [(ngModel)]="model.cityName" type="text"  name="cityName" />
-    <br>
-    <br>
-    <label>Distrito </label>
-    <br>
-    <input [(ngModel)]="model.districtName" type="text"  name="districtName" />
+  <div>
+    <label>Ciudad</label>
+    <input [(ngModel)]="model.cityName" type="text" name="cityName" />
   </div>
 
+  <div>
+    <label>Distrito</label>
+    <input [(ngModel)]="model.districtName" type="text" name="districtName" />
+  </div>
+
+  <!-- Foto de perfil -->
   <label>Foto de Perfil</label>
   <div>
     <img *ngIf="avatarPreview" [src]="avatarPreview" alt="avatar" class="avatar"/>
     <input type="file" accept="image/*" (change)="onAvatarChange($event)" [disabled]="uploadingAvatar"/>
   </div>
 
+  <!-- Galería -->
   <label>Fotos de Galería</label>
   <div>
     <input type="file" accept="image/*" multiple (change)="onGalleryChange($event)" [disabled]="uploadingGallery"/>
@@ -48,10 +49,6 @@
       </div>
     </div>
   </div>
-
-  <label>Nueva contraseña (opcional, min 6)
-    <input [(ngModel)]="password" name="password" type="password" minlength="6"/>
-  </label>
 
   <button type="submit" [disabled]="f.invalid || uploadingAvatar || uploadingGallery">
     Guardar cambios

@@ -46,22 +46,6 @@ export class ProfileEditor implements OnInit {
   galleryPreviews: string[] = [];
   password = '';
 
-  private isHttpUrl(url: string | null | undefined): boolean {
-    return typeof url === 'string' && /^https?:\/\//i.test(url.trim());
-  }
-
-
-  private normalizeCountry(s: string): string {
-    const v = (s || '').trim();
-    if (!v) return '';
-    return v.toLowerCase() === 'perú' ? 'Peru' : v;
-  }
-
-  private recomputeMapsUrl(countryName: string, cityName: string, districtName: string) {
-    const q = encodeURIComponent([districtName, cityName, countryName].filter(Boolean).join(', '));
-    return `https://www.google.com/maps/search/?api=1&query=${q}`;
-  }
-
   ngOnInit() {
     const idNum = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isFinite(idNum) || idNum <= 0) {
@@ -88,33 +72,7 @@ export class ProfileEditor implements OnInit {
     });
   }
 
-  private fileToDataURL(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(String(r.result));
-      r.onerror = reject;
-      r.readAsDataURL(file);
-    });
-  }
-
-  private async compressToDataURL(file: File, maxSide = 900, quality = 0.68): Promise<string> {
-    const dataURL = await this.fileToDataURL(file);
-    const img = await new Promise<HTMLImageElement>((res, rej) => {
-      const i = new Image();
-      i.onload = () => res(i);
-      i.onerror = rej;
-      i.src = dataURL;
-    });
-    const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
-    const w = Math.round(img.width * scale);
-    const h = Math.round(img.height * scale);
-    const canvas = document.createElement('canvas');
-    canvas.width = w; canvas.height = h;
-    const ctx = canvas.getContext('2d')!;
-    ctx.drawImage(img, 0, 0, w, h);
-    return canvas.toDataURL('image/jpeg', quality);
-  }
-
+  // Cambiar foto de perfil
   async onAvatarChange(e: Event) {
     const f = (e.target as HTMLInputElement).files?.[0];
     if (!f) return;
@@ -125,17 +83,17 @@ export class ProfileEditor implements OnInit {
       const b64 = await this.compressToDataURL(f);
       const approxBytes = (b64.length - b64.indexOf(',') - 1) * 3 / 4;
       if (approxBytes > 350 * 1024) { alert('Tras comprimir sigue grande (~350 KB máx)'); this.avatarPreview = null; return; }
-      this.model.photoUrl = b64; // luego se sube (o se usa original si falla)
+      this.model.photoUrl = b64;
     } finally {
       this.uploadingAvatar = false;
     }
   }
 
+  // Cambiar fotos de la galería
   async onGalleryChange(e: Event) {
     const input = e.target as HTMLInputElement;
     const files = Array.from(input.files || []);
     if (!files.length) return;
-    if (files.find(f => f.size > 500 * 1024)) { alert('Una imagen excede 500 KB'); return; }
     this.uploadingGallery = true;
     this.galleryPreviews.push(...files.map(f => URL.createObjectURL(f)));
     try {
@@ -150,131 +108,74 @@ export class ProfileEditor implements OnInit {
     }
   }
 
+  // Eliminar foto de la galería
   removeGalleryItem(i: number) {
-    this.galleryPreviews.splice(i, 1);
-    this.model.gallery.splice(i, 1);
-  }
+    const removedImage = this.galleryPreviews.splice(i, 1)[0]; // Eliminar imagen de la vista previa
+    this.model.gallery.splice(i, 1); // Eliminar imagen del modelo
 
-
-
-  private async ensureUrlsForImages(): Promise<{ photoUrl: string; gallery: string[] }> {
-    let photo: string;
-    if (this.isHttpUrl(this.model.photoUrl)) {
-      photo = this.model.photoUrl!;
-    } else if (this.model.photoUrl?.startsWith('data:')) {
-      photo = this.model.photoUrl!;
-    } else {
-      photo = this.original.photoUrl || '';
-    }
-
-    const current = Array.isArray(this.model.gallery) ? this.model.gallery : [];
-    const processed = await Promise.all(
-      current.map((item, i) =>
-        item?.startsWith('data:')
-          ? Promise.resolve(item)  // ya es base64, lo dejamos tal cual
-          : this.isUsableUrl(item)  // Verificamos si es una URL válida
-            ? Promise.resolve(item)  // Si es una URL válida, la dejamos tal cual
-            : Promise.reject('Invalid URL')  // Si no es válida, rechazamos
-      )
+    // Llamada DELETE a la API para eliminar la imagen de la galería
+    this.api.deleteImageFromGallery(this.id, removedImage).subscribe(
+      () => {
+        console.log('Imagen eliminada exitosamente.');
+      },
+      (error) => {
+        console.error('Error al eliminar la imagen', error);
+        alert('Error al eliminar la imagen');
+      }
     );
-
-    const gallery = processed.filter(u => this.isUsableUrl(u)) as string[];
-    return { photoUrl: photo, gallery: gallery.length ? gallery : (this.original.gallery || []) };
+  }
+// Convierte el archivo en una cadena Base64
+  private fileToDataURL(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result)); // Convierte el resultado en string
+      r.onerror = reject;  // Si hay un error, lo rechazamos
+      r.readAsDataURL(file);  // Lee el archivo como Data URL
+    });
   }
 
-  private isUsableUrl(url: string): boolean {
-    return typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'));
+// Comprime la imagen y luego la convierte en Base64
+  private async compressToDataURL(file: File, maxSide = 900, quality = 0.68): Promise<string> {
+    const dataURL = await this.fileToDataURL(file);  // Convertir el archivo a Base64
+    const img = await new Promise<HTMLImageElement>((res, rej) => {
+      const i = new Image();
+      i.onload = () => res(i);  // Espera que la imagen cargue
+      i.onerror = rej;  // Si hay un error, lo rechazamos
+      i.src = dataURL;  // Asignamos la imagen en formato Base64
+    });
+
+    // Escala la imagen para que se ajuste a los límites máximos
+    const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+    const w = Math.round(img.width * scale);  // Calcula el nuevo ancho
+    const h = Math.round(img.height * scale);  // Calcula la nueva altura
+
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(img, 0, 0, w, h);  // Dibuja la imagen escalada en un canvas
+
+    return canvas.toDataURL('image/jpeg', quality);  // Devuelve la imagen comprimida como Base64
   }
 
-
-
-  private async buildPutBodyIncludingIdAndImages(): Promise<{
-    id: number;
-    fullName: string;
-    email: string;
-    password?: string;
-    phone: string;
-    servicesDescription: string;
-    photoUrl: string;
-    gallery: string[];
-    rate: number;
-    currency: string;
-    countryName: string;
-    cityName: string;
-    districtName: string;
-    mapsUrl: string;
-  }> {
-    const o = this.original;
-
-    const { photoUrl, gallery } = await this.ensureUrlsForImages();  // base64 asegurado aquí
-
-    const fullName = (this.model.fullName || o.fullName || '').trim();
-    const servicesDescription = (this.model.servicesDescription || o.servicesDescription || '').trim();
-    const phone = (this.model.phone || o.phone || '').trim();
-    const email = (o.email || '').trim().toLowerCase();
-    const countryName = this.normalizeCountry(this.model.countryName || o.countryName || 'Peru');
-    const cityName = (this.model.cityName || o.cityName || '').trim();
-    const districtName = (this.model.districtName || o.districtName || '').trim();
-    const mapsUrl = this.recomputeMapsUrl(countryName, cityName, districtName);
-
-    const rate = Number.isFinite(Number(this.model.rate)) ? Number(this.model.rate) : Number(o.rate || 0);
-    const currency = ((this.model.currency || o.currency || 'PEN') + '').toUpperCase().slice(0, 3);
-
-    const body: any = {
-      id: this.id,
-      fullName,
-      email,
-      phone,
-      servicesDescription,
-      photoUrl: String(photoUrl || ''),  // Base64 aquí
-      gallery: Array.isArray(gallery) ? gallery : [],  // Base64 aquí también
-      rate,
-      currency,
-      countryName,
-      cityName,
-      districtName,
-      mapsUrl
-    };
-
-    if (this.password && this.password.trim().length >= 6) {
-      body.password = this.password.trim();
-    }
-
-    return body;
-  }
-
-  async submit() {
+  // Enviar los cambios (Perfil)
+  submit() {
     if (this.uploadingAvatar || this.uploadingGallery) return;
 
-    if (!this.model.fullName?.trim() || !this.model.servicesDescription?.trim()) {
-      alert('Completa nombre y descripción de servicios.');
-      return;
-    }
+    this.api.update(this.id, this.model).subscribe({
+      next: (dto) => {
+        alert('Perfil actualizado');
+        this.original = { ...this.original, ...dto };
+        this.model = { ...dto };
+        this.avatarPreview = this.model.photoUrl || null;
+        this.galleryPreviews = [...(this.model.gallery || [])];
+      },
+      error: (error) => {
+        console.error('Error al actualizar el perfil', error);
+        alert('Error al actualizar el perfil');
+      }
 
-    try {
-      const payload = await this.buildPutBodyIncludingIdAndImages();
-      console.log('PUT /professionals/:id payload ->', payload);
+    });
 
-      this.api.update(this.id, payload).subscribe({
-        next: (dto) => {
-          alert('Perfil actualizado');
-          this.original = { ...this.original, ...dto };
-          this.model = { ...dto };
-          this.avatarPreview = this.model.photoUrl || null;
-          this.galleryPreviews = [...(this.model.gallery || [])];
-        },
-        error: (e) => {
-          const raw = e?.error;
-          const details =
-            typeof raw === 'string' ? raw :
-              raw?.message || raw?.error || e?.message || 'Error';
-          alert(`${e?.status ?? ''} – ${details}`);
-          console.error('Update professional failed:', e, raw);
-        }
-      });
-    } catch (err) {
-      console.error('No se pudo preparar el payload', err);
-      alert('No se pudo preparar los datos para enviar.');
-    }
   }
 }
