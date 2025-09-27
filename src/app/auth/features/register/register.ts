@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {ProfessionalService} from '../../../professional/core/services/professional-service';
 import {NgFor, NgIf} from '@angular/common';
 import {CreateProfessionalPayload} from '../../../professional/shared/professionalDTO';
@@ -10,7 +10,7 @@ import {CreateProfessionalPayload} from '../../../professional/shared/profession
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports:[NgFor, NgIf, FormsModule],
+  imports:[NgFor, NgIf, FormsModule, RouterLink],
   templateUrl: './register.html',
   styleUrl: './register.css'
 })

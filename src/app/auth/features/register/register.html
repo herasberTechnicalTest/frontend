@@ -1,39 +1,75 @@
-<form (ngSubmit)="submit()" autocomplete="off">
-  <h1>Registro de profesional</h1>
+<section class="auth-page">
+  <div class="card">
+    <h1>Crear Cuenta</h1>
+    <p class="sub">Únete como profesional</p>
 
-  <input [(ngModel)]="model.fullName" name="fullName" placeholder="Nombre">
-  <input [(ngModel)]="model.email" name="email" type="email" placeholder="Email">
-  <input [(ngModel)]="model.password" name="password" type="password" placeholder="Contraseña">
-  <input [(ngModel)]="model.phone" name="phone" placeholder="WhatsApp (51xxxxxxx)">
-
-  <textarea [(ngModel)]="model.servicesDescription"
-            name="servicesDescription"
-            rows="5"
-            placeholder="Descripción de servicios"></textarea>
-
-  <input [(ngModel)]="model.cityName" name="cityName" placeholder="Ciudad">
-  <input [(ngModel)]="model.districtName" name="districtName" placeholder="Distrito">
-  <input [(ngModel)]="model.rate" name="rate" type="number" placeholder="Tarifa">
-  <input [(ngModel)]="model.currency" name="currency" placeholder="Moneda (PEN / USD)">
-
-  <label>Foto principal</label>
-  <input type="file" accept="image/*" (change)="onAvatarChange($event)">
-  <div *ngIf="avatarPreview" class="avatar-preview">
-    <img [src]="avatarPreview" alt="preview">
-    <div class="hint" *ngIf="uploadingAvatar">Procesando…</div>
-  </div>
-
-  <label>Galería (puedes elegir varias)</label>
-  <input type="file" accept="image/*" multiple (change)="onGalleryChange($event)">
-  <div class="gallery">
-    <div class="thumb" *ngFor="let g of galleryPreviews; index as i">
-      <img [src]="g" alt="galería">
-      <button type="button" (click)="removeGalleryPreview(i)">✕</button>
+    <!-- Tabs -->
+    <div class="tabs">
+      <a class="tab" routerLink="/login">Iniciar Sesión</a>
+      <button class="tab active" type="button">Registrarse</button>
     </div>
-  </div>
-  <div class="hint" *ngIf="uploadingGallery">Procesando galería…</div>
 
-  <button type="submit" [disabled]="uploadingAvatar || uploadingGallery">
-    Crear cuenta
-  </button>
-</form>
+    <form (ngSubmit)="submit()" autocomplete="off">
+      <label class="label">Nombre completo</label>
+      <input [(ngModel)]="model.fullName" type="text" name="fullName" placeholder="Tu nombre completo">
+
+      <label class="label">Servicio que ofreces</label>
+      <input [(ngModel)]="model.servicesDescription" type="text" name="servicesDescription" placeholder="Ej: Diseñador Gráfico, Desarrollador Web...">
+
+      <label class="label">Correo electrónico</label>
+      <input [(ngModel)]="model.email" name="email" type="email" placeholder="tu@email.com">
+
+      <label class="label">Contraseña</label>
+      <input [(ngModel)]="model.password" name="password" type="password" placeholder="********">
+
+      <label class="label">WhatsApp</label>
+      <input [(ngModel)]="model.phone" type="text" name="phone" placeholder="51xxxxxxxxx">
+
+      <div class="grid-2">
+        <div>
+          <label class="label">Ciudad</label>
+          <input [(ngModel)]="model.cityName" type="text" name="cityName" placeholder="Ciudad">
+        </div>
+        <div>
+          <label class="label">Distrito</label>
+          <input [(ngModel)]="model.districtName" type="text" name="districtName" placeholder="Distrito">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label class="label">Tarifa aproximada</label>
+          <input [(ngModel)]="model.rate" name="rate" type="number" placeholder="S/ 0.00">
+        </div>
+        <div>
+          <label class="label">Moneda</label>
+          <input [(ngModel)]="model.currency"  type="text" name="currency" placeholder="PEN / USD">
+        </div>
+      </div>
+
+      <label class="label">Foto principal</label>
+      <input type="file" accept="image/*" (change)="onAvatarChange($event)">
+      <div *ngIf="avatarPreview" class="avatar-preview">
+        <img [src]="avatarPreview" alt="preview" />
+        <div class="hint" *ngIf="uploadingAvatar">Procesando…</div>
+      </div>
+
+      <label class="label">Galería (puedes elegir varias)</label>
+      <input type="file" accept="image/*" multiple (change)="onGalleryChange($event)">
+
+      <div class="gallery" *ngIf="galleryPreviews?.length">
+        <div class="thumb" *ngFor="let g of galleryPreviews; index as i">
+          <img [src]="g" alt="galería">
+          <button type="button" class="remove" (click)="removeGalleryPreview(i)">✕</button>
+        </div>
+      </div>
+      <div class="hint" *ngIf="uploadingGallery">Procesando galería…</div>
+
+      <button type="submit" class="primary" [disabled]="uploadingAvatar || uploadingGallery">
+        Crear cuenta
+      </button>
+
+      <p class="helper">¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a></p>
+    </form>
+  </div>
+</section>

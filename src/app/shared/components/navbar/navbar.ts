@@ -11,7 +11,7 @@ import {AuthService} from '../../../auth/core/services/auth-service';
   styleUrl: './navbar.css'
 })
 export class NavbarComponent {
-  auth = inject(AuthService); // usar directamente en el template
+  auth = inject(AuthService);
 
   logout() { this.auth.logout(); }
 }
