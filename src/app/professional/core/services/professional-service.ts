@@ -58,7 +58,7 @@ export class ProfessionalService {
   upload(file: File) {
     const form = new FormData();
     form.append('file', file);
-    return this.http.post<{ url: string }>(`${this.base}/upload`, form, {
+    return this.http.post<{ url: string }>(`${environment.apiUrl}/upload`, form, {
       headers: this.authHeaders()
     });
   }

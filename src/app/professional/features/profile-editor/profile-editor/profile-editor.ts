@@ -4,6 +4,7 @@ import {ProfessionalService} from '../../../core/services/professional-service';
 import {ProfessionalDTO, UpdateProfessionalPayload} from '../../../shared/professionalDTO';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgFor, NgIf} from '@angular/common';
+import {firstValueFrom} from 'rxjs';
 
 
 @Component({
@@ -45,6 +46,22 @@ export class ProfileEditor implements OnInit {
   galleryPreviews: string[] = [];
   password = '';
 
+  // ---------- utils ----------
+  private isHttpUrl = (s: string | null | undefined) =>
+    typeof s === 'string' && /^https?:\/\//i.test(s.trim());
+
+  private normalizeCountry(s: string): string {
+    const v = (s || '').trim();
+    if (!v) return '';
+    return v.toLowerCase() === 'perú' ? 'Peru' : v;
+  }
+
+  private recomputeMapsUrl(countryName: string, cityName: string, districtName: string) {
+    const q = encodeURIComponent([districtName, cityName, countryName].filter(Boolean).join(', '));
+    return `https://www.google.com/maps/search/?api=1&query=${q}`;
+  }
+
+  // ---------- lifecycle ----------
   ngOnInit() {
     const idNum = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isFinite(idNum) || idNum <= 0) {
@@ -71,7 +88,7 @@ export class ProfileEditor implements OnInit {
     });
   }
 
-  // ======== utilidades sólo para preview local (NO se envían en el PUT) ========
+  // ---------- imagen (compresión para preview) ----------
   private fileToDataURL(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const r = new FileReader();
@@ -80,6 +97,7 @@ export class ProfileEditor implements OnInit {
       r.readAsDataURL(file);
     });
   }
+
   private async compressToDataURL(file: File, maxSide = 900, quality = 0.68): Promise<string> {
     const dataURL = await this.fileToDataURL(file);
     const img = await new Promise<HTMLImageElement>((res, rej) => {
@@ -97,85 +115,135 @@ export class ProfileEditor implements OnInit {
     ctx.drawImage(img, 0, 0, w, h);
     return canvas.toDataURL('image/jpeg', quality);
   }
+
   async onAvatarChange(e: Event) {
     const f = (e.target as HTMLInputElement).files?.[0];
     if (!f) return;
+    if (f.size > 500 * 1024) { alert('Imagen muy grande (máx 500 KB)'); return; }
     this.uploadingAvatar = true;
     this.avatarPreview = URL.createObjectURL(f);
-    try { this.model.photoUrl = await this.compressToDataURL(f); }
-    finally { this.uploadingAvatar = false; }
+    try {
+      const b64 = await this.compressToDataURL(f);
+      const approxBytes = (b64.length - b64.indexOf(',') - 1) * 3 / 4;
+      if (approxBytes > 350 * 1024) { alert('Tras comprimir sigue grande (~350 KB máx)'); this.avatarPreview = null; return; }
+      this.model.photoUrl = b64; // luego se sube (o se usa original si falla)
+    } finally {
+      this.uploadingAvatar = false;
+    }
   }
+
   async onGalleryChange(e: Event) {
     const input = e.target as HTMLInputElement;
     const files = Array.from(input.files || []);
     if (!files.length) return;
+    if (files.find(f => f.size > 500 * 1024)) { alert('Una imagen excede 500 KB'); return; }
     this.uploadingGallery = true;
     this.galleryPreviews.push(...files.map(f => URL.createObjectURL(f)));
     try {
       const list = await Promise.all(files.map(f => this.compressToDataURL(f)));
-      this.model.gallery = [...(this.model.gallery || []), ...list];
-    } finally { this.uploadingGallery = false; }
+      const filtered = list.filter(b64 => {
+        const approxBytes = (b64.length - b64.indexOf(',') - 1) * 3 / 4;
+        return approxBytes <= 350 * 1024;
+      });
+      this.model.gallery = [...(this.model.gallery || []), ...filtered];
+    } finally {
+      this.uploadingGallery = false;
+    }
   }
+
   removeGalleryItem(i: number) {
     this.galleryPreviews.splice(i, 1);
     this.model.gallery.splice(i, 1);
   }
 
-  // ======== helpers ========
-  private normalizeCountry(s: string): string {
-    const v = (s || '').trim();
-    if (!v) return '';
-    return v.toLowerCase() === 'perú' ? 'Peru' : v;
-  }
-  private recomputeDerivedFields(countryName: string, cityName: string, districtName: string) {
-    const q = encodeURIComponent([districtName, cityName, countryName].filter(Boolean).join(', '));
-    return `https://www.google.com/maps/search/?api=1&query=${q}`;
+  // ---------- upload seguro (convierte data: -> URL) ----------
+  private dataURLtoFile(dataURL: string, filename = 'image.jpg'): File {
+    const [meta, data] = dataURL.split(',');
+    const mimeMatch = meta.match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const binary = atob(data);
+    const u8 = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) u8[i] = binary.charCodeAt(i);
+    return new File([u8], filename, { type: mime });
   }
 
-  /**
-   * Body EXACTO del esquema de tu backend, incluyendo `id`.
-   * - Toma imágenes y email del ORIGINAL (válidos para el server).
-   * - Actualiza sólo textos y números editados.
-   */
-  private buildPutBodyIncludingId(): {
+  private async tryUploadDataUrl(dataUrl: string, name: string): Promise<string> {
+    if (!dataUrl?.startsWith('data:')) return dataUrl; // ya es URL
+    try {
+      const file = this.dataURLtoFile(dataUrl, name);
+      const res = await firstValueFrom(this.api.upload(file));
+      return res?.url || dataUrl;
+    } catch (e) {
+      console.warn('Upload falló; uso valor existente', e);
+      return dataUrl; // no rompemos
+    }
+  }
+
+  private async ensureUrlsForImages(): Promise<{ photoUrl: string; gallery: string[] }> {
+    // Foto principal
+    let photo: string;
+    if (this.isHttpUrl(this.model.photoUrl)) {
+      photo = this.model.photoUrl!;
+    } else if (this.model.photoUrl?.startsWith('data:')) {
+      const url = await this.tryUploadDataUrl(this.model.photoUrl, 'avatar.jpg');
+      photo = this.isHttpUrl(url) ? url : (this.original.photoUrl || '');
+    } else {
+      photo = this.original.photoUrl || '';
+    }
+
+    // Galería: subimos sólo los data:, mantenemos http(s), ignoramos lo inválido
+    const current = Array.isArray(this.model.gallery) ? this.model.gallery : [];
+    const processed = await Promise.all(
+      current.map((item, i) =>
+        item?.startsWith('data:')
+          ? this.tryUploadDataUrl(item, `gallery_${i}.jpg`)
+          : Promise.resolve(item)
+      )
+    );
+    const gallery = processed.filter(u => this.isHttpUrl(u));
+
+    // si todo quedó inválido, usa la galería original del server
+    return { photoUrl: photo, gallery: gallery.length ? gallery : (this.original.gallery || []) };
+  }
+
+  // ---------- payload EXACTO (incluye id) ----------
+  private async buildPutBodyIncludingIdAndImages(): Promise<{
     id: number;
     fullName: string; email: string; password?: string; phone: string;
     servicesDescription: string; photoUrl: string; gallery: string[];
     rate: number; currency: string; countryName: string; cityName: string;
     districtName: string; mapsUrl: string;
-  } {
+  }> {
     const o = this.original;
 
+    // 1) Primero resolvemos imágenes a URLs válidas
+    const { photoUrl, gallery } = await this.ensureUrlsForImages();
+
+    // 2) Campos de texto/números
     const fullName = (this.model.fullName || o.fullName || '').trim();
     const servicesDescription = (this.model.servicesDescription || o.servicesDescription || '').trim();
     const phone = (this.model.phone || o.phone || '').trim();
 
-    // no tocamos email (lo dejamos como lo tiene el servidor)
+    // email: si lo quieres editable, cambia aquí; por defecto uso el del server
     const email = (o.email || '').trim().toLowerCase();
 
-    // normalizaciones
     const countryName = this.normalizeCountry(this.model.countryName || o.countryName || 'Peru');
     const cityName = (this.model.cityName || o.cityName || '').trim();
     const districtName = (this.model.districtName || o.districtName || '').trim();
-    const mapsUrl = this.recomputeDerivedFields(countryName, cityName, districtName);
+    const mapsUrl = this.recomputeMapsUrl(countryName, cityName, districtName);
 
-    // imágenes: mandamos EXACTAMENTE lo que ya acepta el backend (original)
-    const photoUrl = String(o.photoUrl || '');
-    const gallery = Array.isArray(o.gallery) ? o.gallery : [];
-
-    // moneda/monto
     const rate = Number.isFinite(Number(this.model.rate)) ? Number(this.model.rate) : Number(o.rate || 0);
     const currency = ((this.model.currency || o.currency || 'PEN') + '').toUpperCase().slice(0, 3);
 
+    // 3) Body con id (schema de tu backend)
     const body: any = {
-      id: this.id,           // 👈 requerido por tu backend
+      id: this.id,
       fullName,
       email,
-      password: undefined,   // sólo si la cambias abajo
       phone,
       servicesDescription,
-      photoUrl,
-      gallery,
+      photoUrl: String(photoUrl || ''),
+      gallery: Array.isArray(gallery) ? gallery : [],
       rate,
       currency,
       countryName,
@@ -186,14 +254,13 @@ export class ProfileEditor implements OnInit {
 
     if (this.password && this.password.trim().length >= 6) {
       body.password = this.password.trim();
-    } else {
-      delete body.password;
     }
 
     return body;
   }
 
-  submit() {
+  // ---------- submit ----------
+  async submit() {
     if (this.uploadingAvatar || this.uploadingGallery) return;
 
     if (!this.model.fullName?.trim() || !this.model.servicesDescription?.trim()) {
@@ -201,25 +268,30 @@ export class ProfileEditor implements OnInit {
       return;
     }
 
-    const payload = this.buildPutBodyIncludingId();
-    console.log('PUT /professionals/:id payload ->', payload);
+    try {
+      const payload = await this.buildPutBodyIncludingIdAndImages();
+      console.log('PUT /professionals/:id payload ->', payload);
 
-    this.api.update(this.id, payload).subscribe({
-      next: (dto) => {
-        alert('Perfil actualizado');
-        this.original = { ...this.original, ...dto };
-        this.model = { ...dto };
-        this.avatarPreview = this.model.photoUrl || null;
-        this.galleryPreviews = [...(this.model.gallery || [])];
-      },
-      error: (e) => {
-        const raw = e?.error;
-        const details =
-          typeof raw === 'string' ? raw :
-            raw?.message || raw?.error || e?.message || 'Error';
-        alert(`${e?.status ?? ''} – ${details}`);
-        console.error('Update professional failed:', e, raw);
-      }
-    });
+      this.api.update(this.id, payload).subscribe({
+        next: (dto) => {
+          alert('Perfil actualizado');
+          this.original = { ...this.original, ...dto };
+          this.model = { ...dto };
+          this.avatarPreview = this.model.photoUrl || null;
+          this.galleryPreviews = [...(this.model.gallery || [])];
+        },
+        error: (e) => {
+          const raw = e?.error;
+          const details =
+            typeof raw === 'string' ? raw :
+              raw?.message || raw?.error || e?.message || 'Error';
+          alert(`${e?.status ?? ''} – ${details}`);
+          console.error('Update professional failed:', e, raw);
+        }
+      });
+    } catch (err) {
+      console.error('No se pudo preparar el payload', err);
+      alert('No se pudo preparar los datos para enviar.');
+    }
   }
 }
