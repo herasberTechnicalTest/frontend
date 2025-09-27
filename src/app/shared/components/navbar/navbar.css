@@ -1,4 +1,4 @@
-body { margin: 0; }
+
 
 :host{
   display:block;
@@ -6,33 +6,8 @@ body { margin: 0; }
   background: transparent;
 }
 
-.navbar{
-  background:#fff;
-  border:1px solid #e5e7eb;
-  border-radius:12px;
-  box-shadow:0 20px 40px rgba(15,23,42,.06);
-  height:56px;
 
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
 
-  padding:0 16px;
-  max-width:1200px;
-  margin:0 auto;
-  box-sizing:border-box;
-}
-
-/* Marca azul a la izquierda */
-.brand{
-  font-weight:800;
-  font-size:20px;
-  color:#2563eb;
-  letter-spacing:.2px;
-  user-select:none;
-}
-
-/* Lista de links a la derecha */
 .links{
   list-style:none;
   display:flex;
@@ -40,13 +15,15 @@ body { margin: 0; }
   gap:28px;
   margin:0;
   padding:0;
+
+  margin-left:auto;
+  flex-wrap:wrap;
 }
 .links > li{ display:flex; align-items:center; }
 
-/* Links */
 .links a{
   text-decoration:none;
-  color:#475569;                 /* gris legible */
+  color:#475569;
   font-weight:500;
   font-size:19px;
   padding:8px 10px;
@@ -57,11 +34,8 @@ body { margin: 0; }
   color:#2563eb;
   background:rgba(37,99,235,.06);
 }
-.links a.active{
-  color:#2563eb;                 /* “Inicio” en azul */
-}
+.links a.active{ color:#2563eb; }
 
-/* Botón azul (a la derecha) */
 .link-btn{
   display:inline-block;
   background:#2563eb;
@@ -79,5 +53,6 @@ body { margin: 0; }
 .link-btn:hover{ background:#1e4fd3; }
 .link-btn:active{ transform:translateY(1px); }
 
-/* Opcional: hacer la barra fija como en muchas webs */
 .sticky { position: sticky; top: 0; z-index: 1000; }
+
+
