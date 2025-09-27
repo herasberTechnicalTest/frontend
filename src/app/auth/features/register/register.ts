@@ -167,7 +167,6 @@ export class RegisterComponent  {
       servicesDescription: this.model.servicesDescription.trim(),
       cityName: (this.model.cityName || '').trim(),
       districtName: (this.model.districtName || '').trim(),
-      // Aseguramos que photoUrl sea string (no null/undefined)
       photoUrl: String(this.model.photoUrl || ''),
 
       gallery: Array.isArray(this.model.gallery)
