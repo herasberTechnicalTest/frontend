@@ -72,7 +72,7 @@ export class ProfileEditor implements OnInit {
     });
   }
 
-  // Cambiar foto de perfil
+
   async onAvatarChange(e: Event) {
     const f = (e.target as HTMLInputElement).files?.[0];
     if (!f) return;
@@ -89,7 +89,7 @@ export class ProfileEditor implements OnInit {
     }
   }
 
-  // Cambiar fotos de la galería
+
   async onGalleryChange(e: Event) {
     const input = e.target as HTMLInputElement;
     const files = Array.from(input.files || []);
@@ -108,12 +108,12 @@ export class ProfileEditor implements OnInit {
     }
   }
 
-  // Eliminar foto de la galería
-  removeGalleryItem(i: number) {
-    const removedImage = this.galleryPreviews.splice(i, 1)[0]; // Eliminar imagen de la vista previa
-    this.model.gallery.splice(i, 1); // Eliminar imagen del modelo
 
-    // Llamada DELETE a la API para eliminar la imagen de la galería
+  removeGalleryItem(i: number) {
+    const removedImage = this.galleryPreviews.splice(i, 1)[0];
+    this.model.gallery.splice(i, 1);
+
+
     this.api.deleteImageFromGallery(this.id, removedImage).subscribe(
       () => {
         console.log('Imagen eliminada exitosamente.');
@@ -124,41 +124,39 @@ export class ProfileEditor implements OnInit {
       }
     );
   }
-// Convierte el archivo en una cadena Base64
+
   private fileToDataURL(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const r = new FileReader();
-      r.onload = () => resolve(String(r.result)); // Convierte el resultado en string
-      r.onerror = reject;  // Si hay un error, lo rechazamos
-      r.readAsDataURL(file);  // Lee el archivo como Data URL
+      r.onload = () => resolve(String(r.result));
+      r.onerror = reject;
+      r.readAsDataURL(file);
     });
   }
 
-// Comprime la imagen y luego la convierte en Base64
+
   private async compressToDataURL(file: File, maxSide = 900, quality = 0.68): Promise<string> {
-    const dataURL = await this.fileToDataURL(file);  // Convertir el archivo a Base64
+    const dataURL = await this.fileToDataURL(file);
     const img = await new Promise<HTMLImageElement>((res, rej) => {
       const i = new Image();
-      i.onload = () => res(i);  // Espera que la imagen cargue
-      i.onerror = rej;  // Si hay un error, lo rechazamos
-      i.src = dataURL;  // Asignamos la imagen en formato Base64
+      i.onload = () => res(i);
+      i.onerror = rej;
+      i.src = dataURL;
     });
 
-    // Escala la imagen para que se ajuste a los límites máximos
     const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
-    const w = Math.round(img.width * scale);  // Calcula el nuevo ancho
-    const h = Math.round(img.height * scale);  // Calcula la nueva altura
+    const w = Math.round(img.width * scale);
+    const h = Math.round(img.height * scale);
 
     const canvas = document.createElement('canvas');
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext('2d')!;
-    ctx.drawImage(img, 0, 0, w, h);  // Dibuja la imagen escalada en un canvas
+    ctx.drawImage(img, 0, 0, w, h);
 
-    return canvas.toDataURL('image/jpeg', quality);  // Devuelve la imagen comprimida como Base64
+    return canvas.toDataURL('image/jpeg', quality);
   }
 
-  // Enviar los cambios (Perfil)
   submit() {
     if (this.uploadingAvatar || this.uploadingGallery) return;
 

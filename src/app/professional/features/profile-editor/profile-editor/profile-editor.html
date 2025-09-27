@@ -23,22 +23,26 @@
 
   <div>
     <label>Ciudad</label>
+    <br>
+    <br>
     <input [(ngModel)]="model.cityName" type="text" name="cityName" />
   </div>
 
   <div>
     <label>Distrito</label>
+    <br>
+    <br>
     <input [(ngModel)]="model.districtName" type="text" name="districtName" />
   </div>
 
-  <!-- Foto de perfil -->
+
   <label>Foto de Perfil</label>
   <div>
     <img *ngIf="avatarPreview" [src]="avatarPreview" alt="avatar" class="avatar"/>
     <input type="file" accept="image/*" (change)="onAvatarChange($event)" [disabled]="uploadingAvatar"/>
   </div>
 
-  <!-- Galería -->
+
   <label>Fotos de Galería</label>
   <div>
     <input type="file" accept="image/*" multiple (change)="onGalleryChange($event)" [disabled]="uploadingGallery"/>
